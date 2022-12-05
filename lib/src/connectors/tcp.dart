@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_pos_printer_platform/src/models/printer_device.dart';
-import 'package:network_info_plus/network_info_plus.dart';
-
 import 'package:flutter_pos_printer_platform/discovery.dart';
 import 'package:flutter_pos_printer_platform/printer.dart';
+import 'package:flutter_pos_printer_platform/src/models/printer_device.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
 
 class TcpPrinterInput extends BasePrinterInput {
@@ -36,13 +34,15 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
   TcpPrinterConnector();
   Socket? _socket;
 
-  static Future<List<PrinterDiscovered<TcpPrinterInfo>>> discoverPrinters({String? ipAddress, int? port, Duration? timeOut}) async {
+  static Future<List<PrinterDiscovered<TcpPrinterInfo>>> discoverPrinters(
+      {String? ipAddress, int? port, Duration? timeOut}) async {
     final List<PrinterDiscovered<TcpPrinterInfo>> result = [];
     final defaultPort = port ?? 9100;
 
     String? deviceIp;
     if (Platform.isAndroid || Platform.isIOS) {
-      deviceIp = await NetworkInfo().getWifiIP();
+      // deviceIp = await NetworkInfo().getWifiIP();
+      return result;
     } else if (ipAddress != null) deviceIp = ipAddress;
     if (deviceIp == null) return result;
 
@@ -57,7 +57,8 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
 
     await for (var addr in stream) {
       if (addr.exists) {
-        result.add(PrinterDiscovered<TcpPrinterInfo>(name: "${addr.ip}:$defaultPort", detail: TcpPrinterInfo(address: addr.ip)));
+        result.add(PrinterDiscovered<TcpPrinterInfo>(
+            name: "${addr.ip}:$defaultPort", detail: TcpPrinterInfo(address: addr.ip)));
       }
     }
 
@@ -70,7 +71,8 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
 
     String? deviceIp;
     if (Platform.isAndroid || Platform.isIOS) {
-      deviceIp = await NetworkInfo().getWifiIP();
+      // deviceIp = await NetworkInfo().getWifiIP();
+      return;
     } else if (model?.ipAddress != null) {
       deviceIp = model!.ipAddress;
     } else {
